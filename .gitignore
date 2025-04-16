@@ -1,0 +1,18 @@
+# Global
+.DS_Store
+node_modules/
+.env
+dist/
+build/
+
+# Golang (backend)
+backend/bin/
+backend/vendor/
+backend/.env
+backend/*.log
+backend/.idea/
+
+# React (frontend)
+frontend/node_modules/
+frontend/.env
+frontend/dist/
