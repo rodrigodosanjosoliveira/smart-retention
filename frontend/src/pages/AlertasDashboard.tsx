@@ -12,6 +12,10 @@ interface Alerta {
   tipo: string
   motivo: string
   itens_faltantes?: string[]
+    itens_detalhados?: {
+        nome: string
+        ultima_compra: string
+    }[]
 }
 
 export default function AlertasDashboard() {
@@ -42,12 +46,16 @@ export default function AlertasDashboard() {
   }, [])
 
   const alertasPorTipo = (tipo: string) => alertas.filter(a => a.tipo === tipo)
+
   const totalAlertas = alertas.length
 
   const formatarData = (iso: string) => {
+    if (!iso || new Date(iso).getFullYear() < 2000) return "Nunca"
     const data = new Date(iso)
-    return data.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+    return data.toLocaleDateString("pt-BR", { timeZone: "UTC" })
   }
+
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -96,20 +104,22 @@ export default function AlertasDashboard() {
       <section>
         <h3 className="text-lg font-bold mb-2 text-yellow-600">📉 Itens Deixados de Comprar</h3>
         {alertasPorTipo("item_faltando").length === 0 ? (
-          <p className="text-sm text-gray-500">Nenhum item ausente identificado.</p>
+            <p className="text-sm text-gray-500">Nenhum item ausente identificado.</p>
         ) : (
-          <ul className="space-y-4">
-            {alertasPorTipo("item_faltando").map((a, i) => (
-              <li key={i} className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded">
-                <p><strong>{a.nome_cliente}</strong>: {a.motivo}</p>
-                <ul className="ml-4 list-disc text-sm mt-1">
-                  {a.itens_faltantes?.map((item, j) => (
-                    <li key={j}>{item}</li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
+            <ul className="space-y-4">
+              {alertasPorTipo("item_faltando").map((a, i) => (
+                  <li key={i} className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded">
+                    <p><strong>{a.nome_cliente}</strong>: {a.motivo}</p>
+                    <ul className="ml-4 list-disc text-sm mt-1">
+                      {a.itens_detalhados?.map((item, j) => (
+                          <li key={j}>
+                            {item.nome} – última compra: {formatarData(item.ultima_compra)}
+                          </li>
+                      ))}
+                    </ul>
+                  </li>
+              ))}
+            </ul>
         )}
       </section>
     </div>

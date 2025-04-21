@@ -5,6 +5,7 @@ import RegistrarCompra from './pages/RegistrarCompra'
 import HistoricoCompras from './pages/HistoricoCompras'
 import Dashboard from './pages/Dashboard'
 import AlertasDashboard from './pages/AlertasDashboard'
+import ClienteHistorico from "./pages/ClienteHistorico.tsx";
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         <Route path="/historico" element={<HistoricoCompras />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/alertas" element={<AlertasDashboard />} />
+        <Route path="/clientes/:id/historico" element={<ClienteHistorico />} />
       </Routes>
     </div>
   )

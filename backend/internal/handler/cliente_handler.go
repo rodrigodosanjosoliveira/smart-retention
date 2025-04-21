@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"smart-retention/internal/model"
 	"smart-retention/internal/ws"
+	"time"
 )
 
 type (
@@ -89,4 +90,51 @@ func (h *Handler) CriarCliente(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, cliente)
+}
+
+func (h *Handler) HistoricoCliente(c *gin.Context) {
+	clienteID := c.Param("id")
+
+	var cliente model.Cliente
+	if err := h.db.First(&cliente, "id = ?", clienteID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"erro": "Cliente não encontrado"})
+		return
+	}
+
+	var compras []model.Compra
+	h.db.Preload("Itens.Item").Where("cliente_id = ?", clienteID).Order("data_compra DESC").Find(&compras)
+
+	type ItemCompra struct {
+		Nome  string  `json:"nome"`
+		Preco float64 `json:"preco"`
+	}
+	type CompraDTO struct {
+		Data  time.Time    `json:"data"`
+		Itens []ItemCompra `json:"itens"`
+	}
+
+	var historico []CompraDTO
+	for _, compra := range compras {
+		var itens []ItemCompra
+		for _, ci := range compra.Itens {
+			itens = append(itens, ItemCompra{
+				Nome:  ci.Item.Nome,
+				Preco: ci.Preco,
+			})
+		}
+		historico = append(historico, CompraDTO{
+			Data:  compra.DataCompra,
+			Itens: itens,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"cliente": gin.H{
+			"nome":     cliente.Nome,
+			"cnpj":     cliente.CNPJ,
+			"telefone": cliente.Telefone,
+			"endereco": cliente.Endereco,
+		},
+		"historico": historico,
+	})
 }

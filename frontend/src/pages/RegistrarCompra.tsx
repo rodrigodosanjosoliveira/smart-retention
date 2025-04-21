@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
@@ -22,6 +22,7 @@ export default function RegistrarCompra() {
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [clienteSelecionado, setClienteSelecionado] = useState<Cliente | null>(null)
   const [itensSelecionados, setItensSelecionados] = useState<string[]>([])
+  const [precos, setPrecos] = useState<Record<string, number>>({})
   const [dataCompra, setDataCompra] = useState(() => new Date().toISOString().split('T')[0])
 
   useEffect(() => {
@@ -34,12 +35,17 @@ export default function RegistrarCompra() {
     const cliente = clientes.find(c => c.id === id) || null
     setClienteSelecionado(cliente)
     setItensSelecionados([])
+    setPrecos({})
   }
 
   const toggleItem = (itemId: string) => {
     setItensSelecionados(prev =>
-      prev.includes(itemId) ? prev.filter(id => id !== itemId) : [...prev, itemId]
+        prev.includes(itemId) ? prev.filter(id => id !== itemId) : [...prev, itemId]
     )
+  }
+
+  const handlePrecoChange = (itemId: string, preco: number) => {
+    setPrecos(prev => ({ ...prev, [itemId]: preco }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,7 +60,7 @@ export default function RegistrarCompra() {
       cliente_id: clienteSelecionado.id,
       itens: itensSelecionados.map(id => ({
         item_id: id,
-        preco: 0,
+        preco: precos[id] ?? 0,
       })),
       data: dataCompra,
     }
@@ -70,56 +76,69 @@ export default function RegistrarCompra() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mx-auto">
-      <h2 className="text-2xl font-semibold">Registrar Compra</h2>
+      <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mx-auto">
+        <h2 className="text-2xl font-semibold">Registrar Compra</h2>
 
-      <label className="block">
-        Cliente:
-        <select
-          className="w-full p-2 border rounded mt-1"
-          onChange={(e) => handleClienteChange(e.target.value)}
-          value={clienteSelecionado?.id || ''}
-        >
-          <option value="">Selecione um cliente</option>
-          {clientes.map(c => (
-            <option key={c.id} value={c.id}>{c.nome}</option>
-          ))}
-        </select>
-      </label>
-
-      {clienteSelecionado && (
-        <>
-          <label className="block">
-            Itens comprados:
-            <div className="flex flex-wrap gap-3 mt-2">
-              {clienteSelecionado.itens.map(item => (
-                <label key={item.id} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={itensSelecionados.includes(item.id)}
-                    onChange={() => toggleItem(item.id)}
-                  />
-                  {item.nome}
-                </label>
-              ))}
-            </div>
-          </label>
-
-          <label className="block">
-            Data da compra:
-            <input
-              type="date"
+        <label className="block">
+          Cliente:
+          <select
               className="w-full p-2 border rounded mt-1"
-              value={dataCompra}
-              onChange={(e) => setDataCompra(e.target.value)}
-            />
-          </label>
-        </>
-      )}
+              onChange={(e) => handleClienteChange(e.target.value)}
+              value={clienteSelecionado?.id || ''}
+          >
+            <option value="">Selecione um cliente</option>
+            {clientes.map(c => (
+                <option key={c.id} value={c.id}>{c.nome}</option>
+            ))}
+          </select>
+        </label>
 
-      <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-        Registrar Compra
-      </button>
-    </form>
+        {clienteSelecionado && (
+            <>
+              <label className="block">
+                Itens comprados:
+                <div className="flex flex-col gap-3 mt-2">
+                  {clienteSelecionado.itens.map(item => (
+                      <div key={item.id} className="flex items-center gap-2">
+                        <label className="flex items-center gap-2">
+                          <input
+                              type="checkbox"
+                              checked={itensSelecionados.includes(item.id)}
+                              onChange={() => toggleItem(item.id)}
+                          />
+                          {item.nome}
+                        </label>
+                        {itensSelecionados.includes(item.id) && (
+                            <input
+                                type="number"
+                                placeholder="Preço"
+                                min="0"
+                                step="0.01"
+                                value={precos[item.id] ?? ""}
+                                onChange={(e) => handlePrecoChange(item.id, parseFloat(e.target.value))}
+                                className="w-24 p-1 border rounded"
+                            />
+                        )}
+                      </div>
+                  ))}
+                </div>
+              </label>
+
+              <label className="block">
+                Data da compra:
+                <input
+                    type="date"
+                    className="w-full p-2 border rounded mt-1"
+                    value={dataCompra}
+                    onChange={(e) => setDataCompra(e.target.value)}
+                />
+              </label>
+            </>
+        )}
+
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+          Registrar Compra
+        </button>
+      </form>
   )
 }

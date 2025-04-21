@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import {Link} from "react-router-dom";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -69,6 +70,13 @@ export default function Home() {
           {clientes.map((c) => (
             <div key={c.id} className="bg-white p-4 rounded shadow">
               <h3 className="font-bold text-lg">{c.nome}</h3>
+              <Link
+                  to={`/clientes/${c.id}/historico`}
+                  className="text-sm text-blue-600 hover:underline"
+              >
+                Ver histórico
+              </Link>
+
               <p className="text-sm">CNPJ: {c.cnpj}</p>
               <p className="text-sm">Telefone: {c.telefone}</p>
               <p className="text-sm">Email: {c.email}</p>
