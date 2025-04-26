@@ -36,7 +36,7 @@ export default function ClienteHistorico() {
 
     const formatarData = (iso: string) => {
         const data = new Date(iso)
-        return data.toLocaleDateString("pt-BR")
+        return data.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
     }
 
     if (carregando) return <p className="p-4">Carregando...</p>
@@ -44,7 +44,7 @@ export default function ClienteHistorico() {
     return (
         <div className="max-w-3xl mx-auto p-6">
             <Link to="/" className="text-blue-600 hover:underline text-sm mb-4 inline-block">
-                ← Voltar para o dashboard
+                ← Voltar para a Home
             </Link>
             <h1 className="text-2xl font-bold mb-4">Histórico de {cliente?.nome}</h1>
             <div className="mb-4 text-sm text-gray-700">

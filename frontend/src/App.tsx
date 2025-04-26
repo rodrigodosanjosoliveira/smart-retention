@@ -6,6 +6,7 @@ import HistoricoCompras from './pages/HistoricoCompras'
 import Dashboard from './pages/Dashboard'
 import AlertasDashboard from './pages/AlertasDashboard'
 import ClienteHistorico from "./pages/ClienteHistorico.tsx";
+import EditarCliente from "./pages/EditarCliente.tsx";
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/alertas" element={<AlertasDashboard />} />
         <Route path="/clientes/:id/historico" element={<ClienteHistorico />} />
+        <Route path="/clientes/:id" element={<EditarCliente />} />
       </Routes>
     </div>
   )

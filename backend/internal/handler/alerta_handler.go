@@ -137,122 +137,12 @@ func (h *Handler) DispararAlertaDiario() {
 }
 
 func (h *Handler) ListarAlertas(c *gin.Context) {
-	var alertas []AlertaResponse
-
-	diaAtual := int(time.Now().Weekday())
-
-	var clientes []model.Cliente
-	if err := h.db.Preload("DiasCompra").Preload("Itens").Find(&clientes).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"erro": "Erro ao buscar clientes"})
-		return
-	}
-
-	// 1. Não comprou no dia previsto
-	for _, cliente := range clientes {
-		deviaComprarHoje := false
-		for _, d := range cliente.DiasCompra {
-			if d.DiaSemana == diaAtual {
-				deviaComprarHoje = true
-				break
-			}
-		}
-
-		if deviaComprarHoje {
-			var comprouHoje bool
-			h.db.
-				Model(&model.Compra{}).
-				Where(`
-					cliente_id = ? AND 
-					data_compra >= (CURRENT_DATE AT TIME ZONE 'America/Sao_Paulo') AND 
-					data_compra < ((CURRENT_DATE + INTERVAL '1 day') AT TIME ZONE 'America/Sao_Paulo')
-				`, cliente.ID).
-				Select("count(*) > 0").
-				Scan(&comprouHoje)
-
-			if !comprouHoje {
-				alertas = append(alertas, AlertaResponse{
-					ClienteID:   cliente.ID,
-					NomeCliente: cliente.Nome,
-					Tipo:        "dia_previsto",
-					Motivo:      "Hoje é um dia previsto e o cliente ainda não comprou.",
-				})
-			}
-		}
-	}
-
-	// 2. Cliente inativo (não compra há 7 dias)
-	rows, err := h.db.Raw(`
-		SELECT c.id, c.nome
-		FROM clientes c
-		LEFT JOIN compras co ON co.cliente_id = c.id
-		GROUP BY c.id, c.nome
-		HAVING MAX(co.data_compra) IS NULL OR MAX(co.data_compra) < CURRENT_DATE - INTERVAL '7 days'
-	`).Rows()
-
+	alertas, err := h.GerarTodosAlertas()
 	if err != nil {
-		log.Println("Erro ao executar SQL de inatividade:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"erro": "Erro ao buscar clientes inativos"})
+		c.JSON(http.StatusInternalServerError, gin.H{"erro": err.Error()})
 		return
 	}
-	defer rows.Close()
 
-	for rows.Next() {
-		var id, nome string
-		if err := rows.Scan(&id, &nome); err != nil {
-			continue
-		}
-		alertas = append(alertas, AlertaResponse{
-			ClienteID:   id,
-			NomeCliente: nome,
-			Tipo:        "inatividade",
-			Motivo:      "Cliente não compra há mais de 7 dias.",
-		})
-	}
-
-	// 3. Itens deixados de comprar (última compra do ‘item’ > 14 dias)
-	for _, cliente := range clientes {
-		var (
-			itensFaltantes  []string
-			itensDetalhados []ItemDetalhado
-		)
-
-		for _, item := range cliente.Itens {
-			var tmp sql.NullTime
-			row := h.db.Raw(`
-				SELECT MAX(co.data_compra)
-				FROM compra_items ci
-				JOIN compras co ON co.id = ci.compra_id
-				WHERE ci.item_id = ? AND co.cliente_id = ?
-			`, item.ID, cliente.ID).Row()
-
-			if err := row.Scan(&tmp); err != nil {
-				log.Printf("Erro ao escanear última compra para item %s do cliente %s: %v", item.ID, cliente.ID, err)
-				continue
-			}
-
-			if !tmp.Valid || tmp.Time.Before(time.Now().AddDate(0, 0, -14)) {
-				itensFaltantes = append(itensFaltantes, item.Nome)
-
-				itensDetalhados = append(itensDetalhados, ItemDetalhado{
-					Nome:         item.Nome,
-					UltimaCompra: tmp.Time,
-				})
-			}
-
-		}
-
-		if len(itensFaltantes) > 0 {
-			alertas = append(alertas, AlertaResponse{
-				ClienteID:      cliente.ID,
-				NomeCliente:    cliente.Nome,
-				Tipo:           "item_faltando",
-				Motivo:         "Cliente deixou de comprar itens recorrentes.",
-				ItensFaltantes: itensFaltantes,
-			})
-		}
-	}
-
-	// Enviar via WebSocket (se aplicável)
 	if len(alertas) > 0 {
 		h.hub.BroadcastJSON(alertas)
 	}
@@ -261,8 +151,13 @@ func (h *Handler) ListarAlertas(c *gin.Context) {
 }
 
 func (h *Handler) BuildAllAlertas() ([]AlertaResponse, error) {
+	return h.GerarTodosAlertas()
+}
+
+func (h *Handler) GerarTodosAlertas() ([]AlertaResponse, error) {
 	var alertas []AlertaResponse
-	diaAtual := int(time.Now().Weekday())
+	location, _ := time.LoadLocation("America/Sao_Paulo")
+	diaAtual := int(time.Now().In(location).Weekday())
 
 	var clientes []model.Cliente
 	if err := h.db.Preload("DiasCompra").Preload("Itens").Find(&clientes).Error; err != nil {
@@ -338,11 +233,11 @@ func (h *Handler) BuildAllAlertas() ([]AlertaResponse, error) {
 		for _, item := range cliente.Itens {
 			var tmp sql.NullTime
 			row := h.db.Raw(`
-	SELECT MAX(co.data_compra)
-	FROM compra_items ci
-	JOIN compras co ON co.id = ci.compra_id
-	WHERE ci.item_id = ? AND co.cliente_id = ?
-`, item.ID, cliente.ID).Row()
+				SELECT MAX(co.data_compra)
+				FROM compra_items ci
+				JOIN compras co ON co.id = ci.compra_id
+				WHERE ci.item_id = ? AND co.cliente_id = ?
+			`, item.ID, cliente.ID).Row()
 
 			if err := row.Scan(&tmp); err != nil {
 				log.Printf("Erro ao escanear última compra para item %s do cliente %s: %v", item.ID, cliente.ID, err)
@@ -357,7 +252,6 @@ func (h *Handler) BuildAllAlertas() ([]AlertaResponse, error) {
 					UltimaCompra: tmp.Time,
 				})
 			}
-
 		}
 
 		if len(itensFaltantes) > 0 {
@@ -370,7 +264,6 @@ func (h *Handler) BuildAllAlertas() ([]AlertaResponse, error) {
 				ItensDetalhados: itensDetalhados,
 			})
 		}
-
 	}
 
 	return alertas, nil

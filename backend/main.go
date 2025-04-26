@@ -85,6 +85,9 @@ func main() {
 	r.GET("/alertas", h.ListarAlertas)
 	r.GET("/ws/alertas", websocketHandler.HandleAlertasWS)
 	r.GET("/clientes/:id/historico", h.HistoricoCliente)
+	r.GET("/clientes/:id", h.BuscarClientePeloID)
+	r.PUT("/clientes/:id", h.AtualizarCliente)
+	r.DELETE("/clientes/:id", h.DeletarCliente)
 
 	c := cron.New()
 

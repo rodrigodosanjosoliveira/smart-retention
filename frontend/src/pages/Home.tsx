@@ -76,6 +76,12 @@ export default function Home() {
               >
                 Ver histórico
               </Link>
+              <Link
+                  to={`/clientes/${c.id}`}
+                  className="text-sm text-yellow-600 hover:underline ml-4"
+              >
+                Editar
+              </Link>
 
               <p className="text-sm">CNPJ: {c.cnpj}</p>
               <p className="text-sm">Telefone: {c.telefone}</p>

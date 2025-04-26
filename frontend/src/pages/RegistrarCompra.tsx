@@ -87,7 +87,7 @@ export default function RegistrarCompra() {
               value={clienteSelecionado?.id || ''}
           >
             <option value="">Selecione um cliente</option>
-            {clientes.map(c => (
+            {clientes?.map(c => (
                 <option key={c.id} value={c.id}>{c.nome}</option>
             ))}
           </select>
