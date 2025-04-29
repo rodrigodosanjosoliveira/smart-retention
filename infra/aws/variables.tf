@@ -1,3 +1,8 @@
+variable "environment" {
+  description = "Nome do ambiente (ex: production)"
+  type        = string
+}
+
 variable "aws_region" {
   default = "us-east-1"
 }
@@ -13,5 +18,6 @@ variable "db_username" {
 
 variable "db_password" {
   description = "Senha para o banco de dados PostgreSQL"
+  type = string
   sensitive   = true
 }

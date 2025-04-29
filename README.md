@@ -35,7 +35,7 @@ cd smart-retention
 
 ```bash
 cd backend
-cp .env.example .env        # configure o banco
+cp .env.development.example .env.development        # configure o banco
 go mod tidy
 go run main.go              # inicia a API
 ```
@@ -53,7 +53,7 @@ go run main.go              # inicia a API
 
 ```bash
 cd frontend
-cp .env.example .env        # configure a URL do backend
+cp .env.development.example .env.development        # configure a URL do backend
 npm install
 npm run dev
 ```

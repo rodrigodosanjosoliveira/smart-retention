@@ -1,7 +1,9 @@
 package db
 
 import (
+	"github.com/joho/godotenv"
 	"log"
+	"os"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -10,7 +12,15 @@ import (
 )
 
 func Connect() *gorm.DB {
-	dsn := "host=localhost user=postgres password=postgres dbname=clientes port=5432 sslmode=disable"
+	appEnv := os.Getenv("APP_ENV")
+	if appEnv != "production" {
+		if err := godotenv.Load(".env.development"); err != nil {
+			log.Fatal("erro ao carregar o arquivo .env.development: ", err)
+		}
+	}
+
+	dsn := getDSN()
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("erro ao conectar no banco: ", err)
@@ -31,4 +41,19 @@ func AutoMigrate(db *gorm.DB) {
 	} else {
 		log.Println("Banco migrado com sucesso")
 	}
+}
+
+func getDSN() string {
+	host := os.Getenv("DB_HOST")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_NAME")
+	port := os.Getenv("DB_PORT")
+	sslmode := os.Getenv("DB_SSLMODE")
+
+	if host == "" || user == "" || password == "" || dbname == "" || port == "" || sslmode == "" {
+		log.Fatal("variaveis de ambiente do banco não configuradas")
+	}
+
+	return "host=" + host + " user=" + user + " password=" + password + " dbname=" + dbname + " port=" + port + " sslmode=" + sslmode
 }

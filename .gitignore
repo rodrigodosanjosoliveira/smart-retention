@@ -8,7 +8,7 @@ build/
 # Golang (backend)
 backend/bin/
 backend/vendor/
-backend/.env
+backend/.env.development
 backend/*.log
 backend/.idea/
 backend/web/
