@@ -2,29 +2,18 @@
 package main
 
 import (
-	"embed"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"github.com/robfig/cron/v3"
-	"io/fs"
 	"log"
-	"net/http"
 	"smart-retention/internal/handler"
 	"smart-retention/internal/infra/db"
 	"smart-retention/internal/ws"
-	"strings"
 	"time"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/robfig/cron/v3"
 )
 
-//go:embed web/*
-var embeddedFiles embed.FS
-
 func main() {
-	distFS, err := fs.Sub(embeddedFiles, "web")
-	if err != nil {
-		log.Fatal("Erro ao acessar arquivos embutidos:", err)
-	}
-
 	dbConn := db.Connect()
 	db.AutoMigrate(dbConn)
 
@@ -51,28 +40,12 @@ func main() {
 	}()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-
-	fileServer := http.FileServer(http.FS(distFS))
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path
-
-		if !strings.Contains(path, ".") {
-			r.URL.Path = "/index.html"
-		}
-
-		if r.URL.Path != "/index.html" {
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		}
-
-		fileServer.ServeHTTP(w, r)
-	})
 
 	h := handler.NewHandler(dbConn, hub)
 
@@ -98,7 +71,7 @@ func main() {
 
 	c.Start()
 
-	err = r.Run(":8080")
+	err := r.Run(":8080")
 	if err != nil {
 		log.Fatalf("Erro ao iniciar o servidor: %v", err)
 	}
