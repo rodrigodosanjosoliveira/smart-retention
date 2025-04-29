@@ -3,7 +3,7 @@ name: Deploy Backend to AWS (ECS + ECR)
 on:
   push:
     paths:
-      - 'apps/backend/**'
+      - 'backend/**'
     branches:
       - main
 
