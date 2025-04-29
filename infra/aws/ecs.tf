@@ -50,7 +50,7 @@ resource "aws_ecs_task_definition" "backend" {
       },
       {
         name      = "DB_PORT"
-        value     = "5432"
+        value     = "/smart-retention/DB_PORT"
       }
     ]
   }])
