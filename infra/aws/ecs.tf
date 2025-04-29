@@ -12,7 +12,7 @@ resource "aws_ecs_task_definition" "backend" {
 
   container_definitions = jsonencode([{
     name      = "backend"
-    image     = aws_ecr_repository.backend.repository_url
+    image     = "${aws_ecr_repository.backend.repository_url}:latest"
     essential = true
     portMappings = [{
       containerPort = 8080
@@ -25,33 +25,14 @@ resource "aws_ecs_task_definition" "backend" {
         awslogs-region        = var.aws_region
         awslogs-stream-prefix = "ecs"
       }
-    }
-
+    },
     environment = [
-      {
-        name      = "APP_ENV"
-        valueFrom = "/smart-retention/APP_ENV"
-      },
-      {
-        name      = "DB_HOST"
-        valueFrom = "/smart-retention/DB_HOST"
-      },
-      {
-        name      = "DB_USER"
-        valueFrom = "/smart-retention/DB_USER"
-      },
-      {
-        name      = "DB_PASSWORD"
-        valueFrom = "/smart-retention/DB_PASSWORD"
-      },
-      {
-        name      = "DB_NAME"
-        valueFrom = "/smart-retention/DB_NAME"
-      },
-      {
-        name      = "DB_PORT"
-        value     = "/smart-retention/DB_PORT"
-      }
+      { name = "APP_ENV",     value = "production" },
+      { name = "DB_HOST",     value = "terraform-20250429144456373200000002.cwxaeuwo2uu7.us-east-1.rds.amazonaws.com" },
+      { name = "DB_USER",     value = "smartretention" },
+      { name = "DB_PASSWORD", value = "Precious78" },
+      { name = "DB_NAME",     value = "smartretention" },
+      { name = "DB_PORT",     value     = "5432" }
     ]
   }])
 }
@@ -80,26 +61,3 @@ resource "aws_cloudwatch_log_group" "ecs_logs" {
 }
 
 data "aws_caller_identity" "current" {}
-
-resource "aws_iam_policy" "ssm_parameter_access" {
-  name = "smart-retention-ssm-parameter-access"
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect   = "Allow",
-        Action   = [
-          "ssm:GetParameters",
-          "ssm:GetParameter"
-        ],
-        Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/smart-retention/*"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_ssm" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = aws_iam_policy.ssm_parameter_access.arn
-}

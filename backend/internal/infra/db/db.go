@@ -1,7 +1,6 @@
 package db
 
 import (
-	"fmt"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
@@ -15,11 +14,9 @@ import (
 func Connect() *gorm.DB {
 	appEnv := os.Getenv("APP_ENV")
 
-	fmt.Println("⚙️ APP_ENV =", appEnv)
-
 	if appEnv == "" || appEnv == "development" {
 		if err := godotenv.Load(".env.development"); err != nil {
-			log.Println("erro ao carregar o arquivo .env.development: ", err)
+			log.Println("⚠️ Ignorando .env.development: não encontrado.")
 		}
 	}
 
