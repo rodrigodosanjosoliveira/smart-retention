@@ -13,7 +13,7 @@ import (
 
 func Connect() *gorm.DB {
 	appEnv := os.Getenv("APP_ENV")
-	if appEnv != "production" {
+	if appEnv == "" || appEnv == "development" {
 		if err := godotenv.Load(".env.development"); err != nil {
 			log.Fatal("erro ao carregar o arquivo .env.development: ", err)
 		}
