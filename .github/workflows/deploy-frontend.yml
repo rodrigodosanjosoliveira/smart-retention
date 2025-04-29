@@ -6,6 +6,8 @@ on:
       - 'frontend/**'
     branches:
       - main
+  workflow_dispatch:
+
 
 jobs:
   deploy-frontend:
@@ -21,7 +23,7 @@ jobs:
 
       - name: Build React frontend
         run: |
-          cd apps/frontend
+          cd frontend
           npm ci
           npm run build
 
