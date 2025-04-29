@@ -3,6 +3,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"smart-retention/internal/handler"
 	"smart-retention/internal/infra/db"
 	"smart-retention/internal/ws"
@@ -62,6 +63,10 @@ func main() {
 	r.PUT("/clientes/:id", h.AtualizarCliente)
 	r.DELETE("/clientes/:id", h.DeletarCliente)
 
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
 	c := cron.New()
 
 	c.AddFunc("0 8 * * *", func() {
@@ -71,7 +76,7 @@ func main() {
 
 	c.Start()
 
-	err := r.Run(":8080")
+	err := r.Run("0.0.0.0:8080")
 	if err != nil {
 		log.Fatalf("Erro ao iniciar o servidor: %v", err)
 	}
