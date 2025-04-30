@@ -156,7 +156,11 @@ func (h *Handler) BuildAllAlertas() ([]AlertaResponse, error) {
 
 func (h *Handler) GerarTodosAlertas() ([]AlertaResponse, error) {
 	var alertas []AlertaResponse
-	location, _ := time.LoadLocation("America/Sao_Paulo")
+	location, err := time.LoadLocation("America/Sao_Paulo")
+	if err != nil {
+		log.Fatalf("Erro ao carregar localização: %v", err)
+	}
+
 	diaAtual := int(time.Now().In(location).Weekday())
 
 	var clientes []model.Cliente
