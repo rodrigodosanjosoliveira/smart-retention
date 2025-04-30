@@ -28,6 +28,7 @@ resource "aws_ecs_task_definition" "backend" {
     },
     environment = [
       { "name": "APP_ENV", "value": "production" },   # variável simples
+      { name = "GIN_MODE", value = "release" },
       { "name": "DB_PORT", "value": "5432" }          # também simples
     ],
     secrets = [

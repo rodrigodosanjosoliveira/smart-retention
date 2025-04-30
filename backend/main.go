@@ -15,7 +15,10 @@ import (
 )
 
 func main() {
+	gin.SetMode(gin.ReleaseMode)
+
 	dbConn := db.Connect()
+
 	db.AutoMigrate(dbConn)
 
 	r := gin.Default()
