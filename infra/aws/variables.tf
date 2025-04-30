@@ -14,12 +14,15 @@ variable "project_name" {
 
 variable "db_username" {
   description = "Username para o banco de dados PostgreSQL"
+    type        = string
+    default     = "postgres"
 }
 
 variable "db_password" {
   description = "Senha para o banco de dados PostgreSQL"
   type = string
   sensitive   = true
+    default     = "Precious78" # Altere para uma senha segura
 }
 
 variable "db_name" {

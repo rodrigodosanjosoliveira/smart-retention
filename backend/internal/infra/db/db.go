@@ -28,20 +28,18 @@ func init() {
 	password := os.Getenv("DB_PASSWORD")
 	dbname := os.Getenv("DB_NAME")
 	port := os.Getenv("DB_PORT")
-	sslmode := "disable"
 
 	if host == "" || user == "" || password == "" || dbname == "" || port == "" {
 		log.Fatal("variaveis de ambiente do banco não configuradas")
 	}
 
 	dsn = fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s  port=%s sslmode=%s",
+		"host=%s user=%s password=%s dbname=%s  port=%s sslmode=require",
 		host,
 		user,
 		password,
 		dbname,
 		port,
-		sslmode,
 	)
 }
 

@@ -13,7 +13,7 @@ resource "aws_ssm_parameter" "db_host" {
 resource "aws_ssm_parameter" "db_user" {
   name  = "/smart-retention/DB_USER"
   type  = "String"
-  value = "smartretention"
+  value = "postgres"
 }
 
 resource "aws_ssm_parameter" "db_password" {
