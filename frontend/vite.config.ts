@@ -5,4 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: "./",
+  server: {
+    allowedHosts: ['smart-retention-alb-1299321591.us-east-1.elb.amazonaws.com']
+  }
 })
