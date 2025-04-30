@@ -27,12 +27,14 @@ resource "aws_ecs_task_definition" "backend" {
       }
     },
     environment = [
-      { name = "APP_ENV",     value = "production" },
-      { name = "DB_HOST",     value = "terraform-20250429144456373200000002.cwxaeuwo2uu7.us-east-1.rds.amazonaws.com" },
-      { name = "DB_USER",     value = "smartretention" },
-      { name = "DB_PASSWORD", value = "Precious78" },
-      { name = "DB_NAME",     value = "smartretention" },
-      { name = "DB_PORT",     value     = "5432" }
+      { "name": "APP_ENV", "value": "production" },   # variável simples
+      { "name": "DB_PORT", "value": "5432" }          # também simples
+    ],
+    secrets = [
+      { "name": "DB_HOST",     "valueFrom": "/smart-retention/DB_HOST" },
+      { "name": "DB_USER",     "valueFrom": "/smart-retention/DB_USER" },
+      { "name": "DB_PASSWORD", "valueFrom": "/smart-retention/DB_PASSWORD" },
+      { "name": "DB_NAME",     "valueFrom": "/smart-retention/DB_NAME" }
     ]
   }])
 }

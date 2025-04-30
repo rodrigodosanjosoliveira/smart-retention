@@ -21,3 +21,8 @@ variable "db_password" {
   type = string
   sensitive   = true
 }
+
+variable "db_name" {
+  description = "Nome do banco de dados PostgreSQL"
+  default     = "smartretention"
+}
