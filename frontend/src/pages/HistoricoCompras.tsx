@@ -16,7 +16,7 @@ export default function HistoricoCompras() {
   const [compras, setCompras] = useState<Compra[]>([])
 
   useEffect(() => {
-    api.get('/compras').then((res) => setCompras(res.data))
+    api.get('/api/compras').then((res) => setCompras(res.data))
   }, [])
 
   const formatarData = (iso: string) => {

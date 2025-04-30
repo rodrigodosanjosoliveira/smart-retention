@@ -30,28 +30,33 @@ resource "aws_cloudfront_distribution" "frontend" {
   origin {
     domain_name = aws_s3_bucket.frontend.bucket_regional_domain_name
     origin_id   = "frontend-origin"
+
+    s3_origin_config {
+      origin_access_identity = ""
+    }
   }
 
   origin {
     domain_name = aws_lb.backend.dns_name
-    origin_id   = "backend-origin"
+    origin_id   = "api-origin"
 
     custom_origin_config {
-      origin_protocol_policy = "http-only"
       http_port              = 80
       https_port             = 443
+      origin_protocol_policy = "http-only"
       origin_ssl_protocols   = ["TLSv1.2"]
     }
   }
 
   default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD"]
-    cached_methods         = ["GET", "HEAD"]
     target_origin_id       = "frontend-origin"
     viewer_protocol_policy = "redirect-to-https"
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
 
     forwarded_values {
       query_string = false
+
       cookies {
         forward = "none"
       }
@@ -60,19 +65,19 @@ resource "aws_cloudfront_distribution" "frontend" {
 
   ordered_cache_behavior {
     path_pattern           = "/api/*"
-    target_origin_id       = "backend-origin"
+    target_origin_id       = "api-origin"
     viewer_protocol_policy = "redirect-to-https"
-    allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods         = ["GET", "HEAD"]
+    allowed_methods = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    cached_methods  = ["GET", "HEAD"]
 
+    forwarded_values {
+      query_string = true
+      headers      = ["*"]
 
-    cache_policy_id          = aws_cloudfront_cache_policy.no_cache_api.id
-    origin_request_policy_id = aws_cloudfront_origin_request_policy.api_origin_request.id
-    compress                 = true
-  }
-
-  viewer_certificate {
-    cloudfront_default_certificate = true
+      cookies {
+        forward = "all"
+      }
+    }
   }
 
   restrictions {
@@ -80,4 +85,9 @@ resource "aws_cloudfront_distribution" "frontend" {
       restriction_type = "none"
     }
   }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
 }
+

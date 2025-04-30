@@ -26,7 +26,7 @@ export default function RegistrarCompra() {
   const [dataCompra, setDataCompra] = useState(() => new Date().toISOString().split('T')[0])
 
   useEffect(() => {
-    api.get('/clientes').then((res) => {
+    api.get('/api/clientes').then((res) => {
       setClientes(res.data)
     })
   }, [])
@@ -67,7 +67,7 @@ export default function RegistrarCompra() {
 
     try {
       console.log('Payload enviado:', payload)
-      await api.post('/compras', payload)
+      await api.post('/api/compras', payload)
       navigate('/')
     } catch (err) {
       console.error(err)
