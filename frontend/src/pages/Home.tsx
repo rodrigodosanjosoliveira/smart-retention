@@ -29,7 +29,7 @@ export default function Home() {
   const [alertas, setAlertas] = useState<Alerta[]>([])
 
   useEffect(() => {
-    api.get('/clientes').then((res) => {
+    api.get('/api/clientes').then((res) => {
       const normalized = res.data.map((c: any) => ({
         ...c,
         itens: Array.isArray(c.itens) ? c.itens : [],
@@ -37,7 +37,7 @@ export default function Home() {
       }))
       setClientes(normalized)
     })
-    api.get('/alertas/hoje').then((res) => setAlertas(Array.isArray(res.data) ? res.data : []))
+    api.get('/api/alertas/hoje').then((res) => setAlertas(Array.isArray(res.data) ? res.data : []))
   }, [])
 
   return (

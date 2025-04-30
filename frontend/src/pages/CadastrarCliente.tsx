@@ -76,7 +76,7 @@ export default function CadastrarCliente() {
     }
 
     try {
-      await api.post('/clientes', payload)
+      await api.post(`${import.meta.env.VITE_API_BASE_URL}/clientes`, payload)
       navigate('/')
     } catch (err) {
       setErroServidor('Erro ao cadastrar cliente')

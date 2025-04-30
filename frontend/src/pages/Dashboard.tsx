@@ -23,7 +23,7 @@ export default function Dashboard() {
   const [data, setData] = useState<Dashboard | null>(null)
 
   useEffect(() => {
-    api.get('/dashboard').then((res) => setData(res.data))
+    api.get('/api/dashboard').then((res) => setData(res.data))
   }, [])
 
   if (!data) return <p className="text-center mt-10">Carregando dashboard...</p>

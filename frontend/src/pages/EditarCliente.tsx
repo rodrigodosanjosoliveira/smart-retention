@@ -26,7 +26,7 @@ export default function EditarCliente() {
     const [erroServidor, setErroServidor] = useState<string | null>(null)
 
     useEffect(() => {
-        api.get(`/clientes/${id}`)
+        api.get(`/api/clientes/${id}`)
             .then((res) => {
                 const cliente = res.data
                 setForm({
@@ -95,7 +95,7 @@ export default function EditarCliente() {
         }
 
         try {
-            await api.put(`/clientes/${id}`, payload)
+            await api.put(`/api/clientes/${id}`, payload)
             navigate('/')
         } catch (err) {
             setErroServidor('Erro ao atualizar cliente')
@@ -200,7 +200,7 @@ export default function EditarCliente() {
                     if (!confirmar) return
 
                     try {
-                        await api.delete(`/clientes/${id}`)
+                        await api.delete(`/api/clientes/${id}`)
                         navigate('/')
                     } catch (err) {
                         setErroServidor("Erro ao excluir cliente")
