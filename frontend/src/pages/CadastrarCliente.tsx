@@ -76,7 +76,7 @@ export default function CadastrarCliente() {
     }
 
     try {
-      await api.post(`/api/clientes`, payload)
+      await api.post(`/clientes`, payload)
       navigate('/')
     } catch (err) {
       setErroServidor('Erro ao cadastrar cliente')

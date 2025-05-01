@@ -34,7 +34,7 @@ export default function AlertasDashboard() {
     }
 
     const fetchFallback = () => {
-      api.get('/api/alertas').then(res => setAlertas(res.data))
+      api.get('/alertas').then(res => setAlertas(res.data))
     }
 
     const interval = setInterval(fetchFallback, 30000) // fallback a cada 30s
