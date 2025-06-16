@@ -33,9 +33,11 @@ cd smart-retention
 
 #### Setup
 
+Copie o arquivo `.env.development.example` para `.env.development` e ajuste as variáveis do banco.
+
 ```bash
 cd backend
-cp .env.development.example .env.development        # configure o banco
+cp .env.development.example .env.development
 go mod tidy
 go run main.go              # inicia a API
 ```
@@ -51,9 +53,10 @@ go run main.go              # inicia a API
 
 #### Setup
 
+Crie um arquivo `.env.development` com a variável `VITE_API_URL` apontando para o backend.
+
 ```bash
 cd frontend
-cp .env.development.example .env.development        # configure a URL do backend
 npm install
 npm run dev
 ```
