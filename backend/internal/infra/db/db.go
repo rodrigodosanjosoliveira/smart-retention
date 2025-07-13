@@ -30,11 +30,11 @@ func init() {
 	port := os.Getenv("DB_PORT")
 
 	if host == "" || user == "" || password == "" || dbname == "" || port == "" {
-		log.Fatal("variaveis de ambiente do banco não configuradas")
+		log.Fatal("variáveis de ambiente do banco não configuradas")
 	}
 
 	dsn = fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s  port=%s sslmode=require",
+		"host=%s user=%s password=%s dbname=%s  port=%s sslmode=disable",
 		host,
 		user,
 		password,

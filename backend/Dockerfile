@@ -15,10 +15,10 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app
 
 # Etapa 2: Imagem final mínima
-FROM alpine:latest
+FROM alpine:3.22
 
 # ✅ inclui timezones para evitar panic no .In()
-RUN apk add --no-cache tzdata
+RUN apk add --no-cache tzdata=2025b-r0
 
 WORKDIR /root/
 
